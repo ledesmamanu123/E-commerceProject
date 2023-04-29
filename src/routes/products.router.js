@@ -9,15 +9,15 @@ const router = Router();
 router.get('/',async (req,res)=>{
 
     const query = Object.keys(req.query)[0];
+    const queryValue = Object.values(req.query)[0];
     const products = await productManager.getProducts();
 
     if(query != 'limit'){
         res.send(products)
-    } else{
-        const queryValue = Object.values(req.query)[0];
+    } else if(queryValue > 0){
         const productsLimited = products.slice(0,queryValue)
         res.send(productsLimited);
-    }
+    } else{return res.status(400).send({status:"error", message:"Invalid limit"})}
 })
 
 router.get('/:pid', async (req,res)=>{
