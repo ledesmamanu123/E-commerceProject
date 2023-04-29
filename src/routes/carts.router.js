@@ -1,5 +1,6 @@
 import { Router } from "express";
-import CartManager from "../../CartManager/cartManager.js";
+import CartManager from "../../Managers/CartManager/cartManager.js";
+import { REQUEST_STATUS } from "../consts.js";
 
 //Instancia de la clase Carts
 const cartManager = new CartManager();
@@ -15,7 +16,8 @@ router.post('/', async (req,res)=>{
 router.post('/:cid/product/:pid', async (req,res)=>{
     const cartId = req.params.cid;
     const prodId = req.params.pid;
-    await cartManager.setProductToCart(parseInt(cartId),parseInt(prodId))
+    const status = await cartManager.setProductToCart(parseInt(cartId),parseInt(prodId))
+    if(status===REQUEST_STATUS.NOT_FOUND){return res.status(404).send({status:"error", message:"Cart or product don't exist"})}
     res.send({status:"Success", message:"Product added successfuly"})
 
 })
@@ -29,6 +31,7 @@ router.get('/', async (req,res)=>{
 router.get('/:cid', async (req,res)=>{
     const cartId = req.params.cid;
     const cart = await cartManager.getCartById(parseInt(cartId))
+    if(cart=== REQUEST_STATUS.NOT_FOUND){return res.status(404).send({status:"error",message:"Cart doesn't exist"})}
     res.send(cart)
 })
 

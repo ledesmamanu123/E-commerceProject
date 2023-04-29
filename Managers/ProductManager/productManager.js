@@ -1,9 +1,10 @@
 import fs from 'fs';
 import crypto from 'crypto';
+import { REQUEST_STATUS } from '../../src/consts.js';
 
 export default class ProductManager {
     constructor(){
-        this.path = './Entregables/files/Products.json';
+        this.path = './files/Products.json';
     }
 
     getProducts = async () => { //Método para devolver los productos
@@ -17,18 +18,18 @@ export default class ProductManager {
     addProducts = async ({title, description, price, thumbnail, code, stock, status, category}) =>{ //Metodo para agregar productos
         const products = await this.getProducts();
         if (products.find(product => product.code === code)){ //Validamos que el code sea distinto
-            return console.log("El producto ya existe");
+            return REQUEST_STATUS.REJECT;
         }
         //Validamos que todos los campos esten completos
         if (!title||!description||!price||!code||!stock||!category){
-            return console.log("Complete todos los campos");
+            return REQUEST_STATUS.INCOMPLETE;
             
         }
         const product = {
             title, 
             description, 
             price, 
-            thumbnail:[], 
+            thumbnail:thumbnail || [], 
             code, 
             stock,
             status,
@@ -51,8 +52,7 @@ export default class ProductManager {
         const products = await this.getProducts();
         const productIndex = products.findIndex(product => product.id === newId) //Corroboramos que el producto exista en nuestro array mediante una condicion (en este caso, si el id del objeto del array que estamos iterando, es igual al id que nos mandan).
         if(productIndex === -1){ //Si la condicion no se cumple, hacer lo siguiente
-            console.log("Not Found");
-            console.log(newId)
+            return REQUEST_STATUS.NOT_FOUND;
         }
         //Si llega acá, entonces el producto existe, entonces, devolver el producto
         return products[productIndex];
@@ -63,13 +63,12 @@ export default class ProductManager {
         try {
             const products = await this.getProducts();
             const productIndex = products.findIndex(prod => prod.id === id);
-            if(productIndex === -1){console.log("Product not found")}
+            if(productIndex === -1){return REQUEST_STATUS.NOT_FOUND}
 
             const productToUpdate = { ...products[productIndex], ...updatedFields };
             products[productIndex] = productToUpdate;
 
             await fs.promises.writeFile(this.path, JSON.stringify(products, null, '\t'));
-            console.log('Product updated successfuly')
 
         } catch (error) {
             console.error(error);
@@ -80,9 +79,8 @@ export default class ProductManager {
     deleteProduct = async (id) =>{
         const products = await this.getProducts();
         const productIndex = products.findIndex(prod => prod.id === id);
-        if(productIndex === -1){console.log("Product not found")}
+        if(productIndex === -1){return REQUEST_STATUS.NOT_FOUND}
         products.splice(productIndex, 1);
         await fs.promises.writeFile(this.path, JSON.stringify(products, null, '\t'));
-        console.log('Product deleted');
     }
 }

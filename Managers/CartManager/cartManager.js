@@ -1,8 +1,12 @@
 import fs from 'fs';
+import { REQUEST_STATUS } from '../../src/consts.js';
+import ProductManager from '../ProductManager/productManager.js';
+
+const productManager = new ProductManager();
 
 export default class CartManager {
     constructor() {
-        this.path = './Entregables/files/Carts.json';
+        this.path = './files/Carts.json';
     }
 
     getCarts = async () =>{
@@ -27,15 +31,20 @@ export default class CartManager {
         }
         carts.push(cart)
         await fs.promises.writeFile(this.path, JSON.stringify(carts, null, '\t'));
-        console.log(`Cart was created successfuly`);
+        return REQUEST_STATUS.SUCCESS;
     }
+
     setProductToCart = async (cartId,prodId) =>{
+        const productsDB = await productManager.getProducts();
         const carts = await this.getCarts();
         const cartIndex = carts.findIndex(cart => cart.id === cartId)
         if (cartIndex===-1){
-            return console.log("Cart doesn't exist")
+            return REQUEST_STATUS.NOT_FOUND;
         }
-
+        const prodDBIndex = productsDB.findIndex(prod => prod.id === prodId) //Verificamos que el producto exista en nuestro files/Products
+        if (prodDBIndex===-1){
+            return REQUEST_STATUS.NOT_FOUND;
+        }
         const products = {
             product:prodId
         }
@@ -46,12 +55,12 @@ export default class CartManager {
             products.quantity = 1;
             carts[cartIndex].products.push(products);
             await fs.promises.writeFile(this.path, JSON.stringify(carts, null, '\t'));
-            console.log("Product added successfuly")
+            return REQUEST_STATUS.SUCCESS;
     
         }else{
             carts[cartIndex].products[prodIndex].quantity++;
             await fs.promises.writeFile(this.path, JSON.stringify(carts, null, '\t'));
-            console.log("Product added successfuly")
+            return REQUEST_STATUS.SUCCESS;
         }
     }
 
@@ -59,7 +68,7 @@ export default class CartManager {
         const carts = await this.getCarts();
         const cartIndex = carts.findIndex(cart => cart.id === cartId)
         if(cartIndex === -1){
-            console.log("Cart not found")
+            return REQUEST_STATUS.NOT_FOUND;
         }
         return carts[cartIndex];
     }
