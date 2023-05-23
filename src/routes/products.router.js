@@ -1,16 +1,14 @@
 import { Router } from "express";
-import ProductManager from '../../Managers/ProductManager/productManager.js';
-import { REQUEST_STATUS } from "../consts.js";
-const productManager = new ProductManager();
+import ProductsManager from "../../dao/mongo/Managers/productsManager.js";
+const productService = new ProductsManager();
 
 const router = Router();
 
 //METODOS GET
 router.get('/',async (req,res)=>{
-
     const query = Object.keys(req.query)[0];
     const queryValue = Object.values(req.query)[0];
-    const products = await productManager.getProducts();
+    const products = await productService.getProducts();
 
     if(query != 'limit'){
         res.send(products)
@@ -21,53 +19,52 @@ router.get('/',async (req,res)=>{
 })
 
 router.get('/:pid', async (req,res)=>{
-    console.log(req.params)
-    const idParam = req.params.pid;
-
-    const product = await productManager.getProductById(parseInt(idParam));
-    if(product === REQUEST_STATUS.NOT_FOUND){return res.status(404).send({status:"error", message:"Product doesn't exist"})}
-    res.send(product);
+    const {pid} = req.params;
+    const product = await productService.getProductsBy({_id:pid});
+    if(!product) return res.status(404).send({status:"Error", error: "Product not found"})
+    res.send({status:"Success", payload:product});
 })
 
 
 
 //METODOS POST
 router.post('/', async (req, res)=>{
-    //Guardamos el producto que nos llega desde el body
-    const product = req.body;
-    console.log(product)
-    //Acá preguntar por boolean
-    if(!product.status){product.status = true;}
-    
+    const products = await productService.getProducts();
+    const {title, description, price, thumbnail, code, stock, status, category} = req.body;
+    if(products.find(product => product.code === code)) return res.status(400).send({status:"error", error:"Product already existed"})
+    if(!title||!description||!price||!code||!stock||!category) return res.status(400).send({status:"error", error:"Incompleted values"})
+    const product = {
+        title, 
+        description, 
+        price, 
+        thumbnail:thumbnail || [], 
+        code, 
+        stock,
+        status,
+        category
+    }
     //Mandamos nuestro nuevo producto
-    const status = await productManager.addProducts(product)
-
-    if(status === REQUEST_STATUS.REJECT){return res.status(404).send({status:"error", message:"Invalid code is already used"})}
-    if(status === REQUEST_STATUS.INCOMPLETE){return res.status(404).send({status:"error", message:"Fields incompleted"})}
-
-    res.send({status:"Success", message:"Product was created successfuly"})
+    const result = await productService.createProduct(product)
+    res.status(201).send({status:"Success", message:"Product was created successfuly"})
 })
 
 //METODOS PUT
 router.put('/:pid', async (req,res)=>{
-    const idParam = req.params.pid;
-    const updatedFields = req.body;
-    const status = await productManager.updateProduct(parseInt(idParam), updatedFields);
-
-    if(status === REQUEST_STATUS.NOT_FOUND){return res.status(404).send({status:"error", message:"Product doesn't exist"})}
-
-    res.send({status:"Success Updated"})
+    try {
+        const {pid} = req.params;
+        const updatedFields = req.body;
+        const result = await productService.updateProduct(pid, updatedFields);
+        res.send({status:"Success Updated"})
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 //METODO DELETE
 router.delete('/:pid', async (req,res)=>{
-    const idParam = req.params.pid;
-    const status = await productManager.deleteProduct(parseInt(idParam))
-
-    if(status === REQUEST_STATUS.NOT_FOUND){return res.status(404).send({status:"error", message:"Product doesn't exist"})}
-
-    res.send({status:"Product was deleted successfuly"})
-
+    const {pid} = req.params;
+    await productService.deleteProduct(pid)
+    res.send({status:"Success Deleted"})
 })
 
 export default router

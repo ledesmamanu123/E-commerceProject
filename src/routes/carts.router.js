@@ -1,23 +1,31 @@
 import { Router } from "express";
-import CartManager from "../../Managers/CartManager/cartManager.js";
+import CartManager from "../../dao/mongo/Managers/cartsManager.js";
+import ProductsManager from "../../dao/mongo/Managers/productsManager.js";
 import { REQUEST_STATUS } from "../consts.js";
 
-//Instancia de la clase Carts
-const cartManager = new CartManager();
+const cartService = new CartManager();
+const productService = new ProductsManager();
 
 const router = Router();
 
 //METODO POST
 
 router.post('/', async (req,res)=>{
-    await cartManager.newCart()
+    const cart = {
+        products:[]
+    }
+    const result = await cartService.createCart(cart)
     res.send({status:"Success", message:"Cart was created successfuly"})
 })
 router.post('/:cid/product/:pid', async (req,res)=>{
-    const cartId = req.params.cid;
-    const prodId = req.params.pid;
-    const status = await cartManager.setProductToCart(parseInt(cartId),parseInt(prodId))
-    if(status===REQUEST_STATUS.NOT_FOUND){return res.status(404).send({status:"error", message:"Cart or product don't exist"})}
+    const {cid} = req.params;
+    const {pid} = req.params;
+    const cart = await cartService.getCartBy({_id:cid})
+    const products = {
+        product:pid
+    }
+
+    const result = await cartService.setProductToCart(cid, products)
     res.send({status:"Success", message:"Product added successfuly"})
 
 })
@@ -25,14 +33,15 @@ router.post('/:cid/product/:pid', async (req,res)=>{
 
 //METODO GET
 router.get('/', async (req,res)=>{
-    const carts = await cartManager.getCarts();
+    const carts = await cartService.getCarts();
+    console.log(JSON.stringify(carts[0]._id))
     res.send(carts)
 })
 router.get('/:cid', async (req,res)=>{
-    const cartId = req.params.cid;
-    const cart = await cartManager.getCartById(parseInt(cartId))
-    if(cart=== REQUEST_STATUS.NOT_FOUND){return res.status(404).send({status:"error",message:"Cart doesn't exist"})}
-    res.send(cart)
+    const {cid} = req.params;
+    const result = await cartService.getCartBy({_id:cid})
+    console.log(result)
+    res.send({status:"Success", payload:result})
 })
 
 export default router

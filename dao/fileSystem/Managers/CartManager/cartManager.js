@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { REQUEST_STATUS } from '../../src/consts.js';
+import { REQUEST_STATUS } from '../../../../src/consts.js';
 import ProductManager from '../ProductManager/productManager.js';
 
 const productManager = new ProductManager();

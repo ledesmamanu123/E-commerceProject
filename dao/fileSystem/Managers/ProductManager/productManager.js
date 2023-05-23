@@ -1,6 +1,6 @@
 import fs from 'fs';
 import crypto from 'crypto';
-import { REQUEST_STATUS } from '../../src/consts.js';
+import { REQUEST_STATUS } from '../../../../src/consts.js';
 
 export default class ProductManager {
     constructor(){
