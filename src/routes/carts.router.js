@@ -55,11 +55,50 @@ router.get('/:cid', async (req,res)=>{
     res.send({status:"Success", payload:result})
 })
 
+
+//METODO PUT
+router.put('/:cid/products/:pid', async(req,res)=>{
+    const {cid, pid} = req.params;
+    const {quantity} = req.body;
+    try {
+        const cart = await cartsModel.findById(cid)
+        if(!cart){return res.status(404).json({error: 'Cart not found'})} //Verificamos que el carrito exista
+
+        const product = cart.products.find(prod => prod.product.toString() === pid) //Verificamos que el producto exista en nuestro carrito
+ 
+        if(!product){ //el no producto existe
+        return res.status(404).send({status:'error', message:"Product didn't exist"})}
+        product.quantity = quantity;
+
+        const result = await cart.save();
+        return res.send({status:'Success', message:'Product updated successfuly', cart:result})
+    } catch (error) {
+        
+    }
+})
+
+
 //METODO DELETE
-router.delete('/:cid', async (req,res)=>{
+router.delete('/deleteCart/:cid', async (req,res)=>{
     const {cid} = req.params;
     const result = await cartService.deleteCart({_id:cid})
     res.send({status:'Success', message:'Cart deleted successfuly'})
+})
+
+router.delete('/:cid', async (req,res)=>{
+    const {cid} = req.params;
+    try {
+        const cart = await cartsModel.findById(cid)
+        if(!cart){return res.status(404).json({error: 'Cart not found'})} //Verificamos que el carrito exista
+
+        cart.products = [];
+        const result = await cart.save();
+        return res.send({status:'Success', message:'Products deleted successfuly', cart:result})
+        
+    } catch (error) {
+        console.log('Error: '+error)
+        res.status(500).send({error:error, message:'Server error'})
+    }
 })
 
 router.delete('/:cid/products/:pid', async(req,res)=>{
@@ -72,7 +111,7 @@ router.delete('/:cid/products/:pid', async(req,res)=>{
         console.log(prodIndex)
         if(prodIndex!==-1){ //el producto existe
             cart.products.pull({product:pid})
-            
+
             const result = await cart.save();
             return res.send({status:'Success', message:'Product deleted successfuly', cart:result})
         }else{//el producto no existe
