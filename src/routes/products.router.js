@@ -1,21 +1,46 @@
 import { Router } from "express";
 import ProductsManager from "../../dao/mongo/Managers/productsManager.js";
+import productsModel from "../../dao/mongo/Models/products.js";
 const productService = new ProductsManager();
 
 const router = Router();
 
 //METODOS GET
 router.get('/',async (req,res)=>{
-    const query = Object.keys(req.query)[0];
-    const queryValue = Object.values(req.query)[0];
-    const products = await productService.getProducts();
+    const {page=1, limit =10} = req.query;
+    const paginates = await productsModel.paginate({},{page, limit, lean:true})
+    const {docs, hasPrevPage, hasNextPage, prevPage, nextPage, totalPages, ...rest} = paginates;
+    const products = docs;
+    let prevLink =null;
+    let nextLink =null;
+    if(hasPrevPage){prevLink=`/?page=${prevPage}`}
+    if(hasNextPage){nextLink=`/?page=${nextPage}`}
+    if(limit<0){
+        return res.status(400).send({status:"error", message:"Invalid limit"});
+    }
+    res.send({
+        status:'Success',
+        payload:products,
+        totalPages:totalPages,
+        prevPage:prevPage,
+        nextPage:nextPage,
+        page:rest.page,
+        hasPrevPage:hasPrevPage,
+        hasNextPage:hasNextPage,
+        prevLink:prevLink,
+        nextLink:nextLink,
 
-    if(query != 'limit'){
-        res.send(products)
-    } else if(queryValue > 0){
-        const productsLimited = products.slice(0,queryValue)
-        res.send(productsLimited);
-    } else{return res.status(400).send({status:"error", message:"Invalid limit"})}
+    })
+    // const query = Object.keys(req.query)[0];
+    // const queryValue = Object.values(req.query)[0];
+    // const products = await productService.getProducts();
+
+    // if(query != 'limit'){
+    //     res.send(products)
+    // } else if(queryValue > 0){
+    //     const productsLimited = products.slice(0,queryValue)
+    //     res.send(productsLimited);
+    // } else{return res.status(400).send({status:"error", message:"Invalid limit"})}
 })
 
 router.get('/:pid', async (req,res)=>{
