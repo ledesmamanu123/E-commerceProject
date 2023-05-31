@@ -10,7 +10,8 @@ const schema = new mongoose.Schema({
                     ref:'Products'
                 },
                 quantity:{
-                    type:Number
+                    type:Number,
+                    default: 1
                 }
             }
         ],
@@ -18,6 +19,9 @@ const schema = new mongoose.Schema({
     }
 },{timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }})
 
+schema.pre('find', function (){
+    this.populate('products.product')
+})
 const cartsModel = mongoose.model(collection,schema);
 
 export default cartsModel;

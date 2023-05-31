@@ -14,23 +14,17 @@ export default class CartManager {
         return cartsModel.findOne(params).lean();
     }
 
-    //  setNewProductToCart = (cid, product, pid)=>{
-    //     console.log(product)
-    //      return cartsModel.findByIdAndUpdate(
-    //         {_id:cid},
-    //         {$eq:{}}
-    //      )
-    // }
-
-    setProductToCart = (cid, product) =>{
-        console.log(product)
-        //   return cartsModel.updateOne(
-        //       {_id: cid}, //Buscamos el carrito por id
-        //       {$push:{products:{product: new mongoose.Types.ObjectId(products.product), quantity:products.quantity}}}) //Pusheamos en nuestra key 'products', un objeto con la key 'product' y el value pid.
-        return cartsModel.findByIdAndUpdate(
-            {_id:cid}, //Buscamos el carrito por el id
-            {$set:{products:product}} //Seteamos el producto nuevo
-        )
+    setProductToCart = () =>{
+        // console.log(products)
+        // return cartsModel.updateOne(
+        //     {_id:cid},
+        //     {$push:{products:{product: new mongoose.Types.ObjectId(products.product), quantity:products.quantity}}})
+        // const cartId = new mongoose.Types.ObjectId(cid)
+        // return cartsModel.findByIdAndUpdate(
+        //     {cartId, 'products.product': pid},
+        //     {$inc: {'products.$.quantity': 1}}
+        // )
+        return cartsModel.save();
     }
 
     deleteCart = (cid) =>{

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import CartManager from "../../dao/mongo/Managers/cartsManager.js";
 import ProductsManager from "../../dao/mongo/Managers/productsManager.js";
-import { REQUEST_STATUS } from "../consts.js";
+import cartsModel from "../../dao/mongo/Models/cart.js";
 
 const cartService = new CartManager();
 const productService = new ProductsManager();
@@ -21,34 +21,23 @@ router.post('/:cid/product/:pid', async (req,res)=>{
     const {cid} = req.params;
     const {pid} = req.params;
     try {
-        const cart = await cartService.getCartBy({_id:cid}) 
-        //console.log("Este es el ID del producto dentro del carrito: "+cart.products[0].product)
-        console.log("Este es el lugar del producto en el array products: "+cart.products.findIndex(prod => prod.product == pid)) //cart = {_id:'suRespectivoId', products:[ {product:'idDelProducto', _id:'idDelObjetoEnSi'},{...},{...} ]}
+        const cart = await cartsModel.findById(cid)
+        if(!cart){return res.status(404).json({error: 'Carrito not found'})}
+        // console.log("Este es el lugar del producto en el array products: "+cart.products.findIndex(prod => prod.product == pid)) //cart = {_id:'suRespectivoId', products:[ {product:'idDelProducto', _id:'idDelObjetoEnSi'},{...},{...} ]}
 
         //Verificamos que el producto exista en nuestro carrito
-        const prodIndex = cart.products.findIndex(prod => prod.product == pid)
+        const prodIndex = cart.products.findIndex(prod => prod.product.toString() === pid)
 
-        if(prodIndex === -1){ //Si prodIndex es -1, el producto no existe, entonces le agreamos la quantity a 1
-            console.log('El producto no existe')
-            const products = {
-                product:pid
-            }
-            products.quantity = 1;
-            const result = await cartService.setProductToCart(cid, products);
-            return res.send({status:'Success', message:'Product added successfuly'})
-        }else{
-            console.log('El producto existe')
-            const prevQuantity = cart.products[prodIndex].quantity;
-            console.log(prevQuantity);
-            const products = {
-                product:pid,
-                quantity: prevQuantity + 1
-            }
-            const result = await cartService.setProductToCart(cid, products);
-            return res.send({status:'Success', message:'Product added successfuly'})
+        if(prodIndex === -1){ //El producto no existe
+            cart.products.push({product:pid})
+        }else{ //El producto si existe
+            cart.products[prodIndex].quantity+=1;
         }
+        const result = await cart.save();
+        return res.send({status:'Success', message:'Product added successfuly', cart:result})
     } catch (error) {
-        console.log(error)
+        console.log('Error al agregar el producto: '+error)
+        res.status(500).send({error:error, message:'Error interno'})
     }
 })
 
