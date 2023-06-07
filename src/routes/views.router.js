@@ -5,10 +5,15 @@ import productsModel from "../../dao/mongo/Models/products.js";
 const productService = new ProductsManager();
 const router = Router();
 
-router.get('/', async(req, res)=>{
+router.get('/',(req, res)=>{
+    res.render('register')
+})
+router.get('/login',(req,res)=>{
+    res.render('login')
+})
+router.get('/home',async (req,res)=>{
     const {page=1, limit =3} = req.query;
     const paginates = await productsModel.paginate({},{page, limit, lean:true})
-    console.log(req.query)
     const {docs, hasPrevPage, hasNextPage, prevPage, nextPage, ...rest} = paginates;
     const products = docs;
 
@@ -19,12 +24,9 @@ router.get('/', async(req, res)=>{
         prevPage,
         nextPage,
         page:rest.page,
-        limit:rest.limit
+        limit:rest.limit,
+        user:req.session.user
     }) 
-})
-
-router.get('/form',(req,res)=>{
-    res.render('form')
 })
 
 export default router;
