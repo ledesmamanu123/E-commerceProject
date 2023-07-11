@@ -1,16 +1,22 @@
 import { Router } from "express";
 import ProductsManager from "../../dao/mongo/Managers/productsManager.js";
 import productsModel from "../../dao/mongo/Models/products.js";
+import { privacy } from "../middlewares/auth.js";
 
 const productService = new ProductsManager();
 const router = Router();
 
-router.get('/',(req, res)=>{
+router.get('/',privacy('NO_AUTHENTICATED'),(req, res)=>{
     res.render('register')
 })
-router.get('/login',(req,res)=>{
+router.get('/login',privacy('NO_AUTHENTICATED'),(req,res)=>{
     res.render('login')
 })
+router.get('/restoredPassword', privacy('NO_AUTHENTICATED'),(req,res)=>{
+    res.render('restoredPass')
+})
+
+
 router.get('/home',async (req,res)=>{
     const {page=1, limit =3} = req.query;
     const paginates = await productsModel.paginate({},{page, limit, lean:true})

@@ -15,4 +15,7 @@ export default class UsersManager {
     deleteUser = (params) =>{
         return userModel.findByIdAndDelete(params)
     }
+    updateUser = (id, fields)=>{
+        return userModel.findByIdAndUpdate(id,{$set:fields})
+    }
 }

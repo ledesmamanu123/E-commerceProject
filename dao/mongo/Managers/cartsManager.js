@@ -15,15 +15,6 @@ export default class CartManager {
     }
 
     setProductToCart = () =>{
-        // console.log(products)
-        // return cartsModel.updateOne(
-        //     {_id:cid},
-        //     {$push:{products:{product: new mongoose.Types.ObjectId(products.product), quantity:products.quantity}}})
-        // const cartId = new mongoose.Types.ObjectId(cid)
-        // return cartsModel.findByIdAndUpdate(
-        //     {cartId, 'products.product': pid},
-        //     {$inc: {'products.$.quantity': 1}}
-        // )
         return cartsModel.save();
     }
 
