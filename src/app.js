@@ -10,7 +10,7 @@ import viewsRouter from './routes/views.router.js';
 const app = express();
 const PORT = process.env.PORT||8080;
 const server = app.listen(PORT,()=>{console.log(`ExpServer is listening in port ${PORT}`)})
-const connection = mongoose.connect('mongodb+srv://ledesma_manu_:QsZvAD66IkiMkiHA@clusteronlytolearn.q6a1iy7.mongodb.net/ecommerce?retryWrites=true&w=majority')
+const connection = mongoose.connect(process.env.MONGO_URL)
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 app.use(express.static(`${__dirname}/public`))
