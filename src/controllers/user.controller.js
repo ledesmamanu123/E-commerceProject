@@ -16,28 +16,8 @@ const getUsersBy = async(req,res)=>{
 }
 
 const createUser = async(req,res)=>{
-    const users = await usersService.getUsers();
-    const {email,first_name, last_name, age, password, cart} = req.body;
-    if(users.find(user => user.email === email)) return res.status(400).send({status:'error', error:"Email already existed"})
-    if(!email||!first_name||!last_name||!age||!password||!cart) return res.status(400).send({status:"error", error:"Incompleted values"})
     
-    //Cuando paso todos los controles, ACÁ CREAMOS AL USER, Y DESPUES LE CREAMOS LA SESSION
-
-    //Hasheamos la pass
-    const hashPassword = createHash(password);
-
-    //Creamos al user
-    const user = {
-        first_name,
-        last_name,
-        email,
-        password: hashPassword,
-        age,
-        cart
-    }
-
-    const result = await usersService.createUser(user);
-    res.send({status:'Success', payload:result})
+    res.send({status:"Success", message:"User registered",payload:req.user})
 }
 
 const updateUser =  async (req,res)=>{

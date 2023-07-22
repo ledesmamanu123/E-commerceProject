@@ -3,6 +3,8 @@ import handlebars from 'express-handlebars';
 import mongoose from 'mongoose';
 import config from './config/config.js';
 import __dirname from './utils.js';
+import passport from 'passport';
+import initializePassport from './config/passport.config.js';
 
 import ProductsRouter from './routes/products.router.js';
 import CartsRouter from './routes/carts.router.js';
@@ -17,14 +19,19 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 app.use(express.static(`${__dirname}/public`))
 
+//Inicializamos las estrategias de passport
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session());
+
 //Seteo Handlebars
 app.engine('handlebars', handlebars.engine())
 app.set('views', `${__dirname}/views`)
 app.set('view engine', 'handlebars')
 
 //Routes
-app.use('/api/users',UsersRouter);
 app.use('/', viewsRouter);
+app.use('/api/users',UsersRouter);
 app.use('/api/products', ProductsRouter);
 app.use('/api/carts', CartsRouter);
 
