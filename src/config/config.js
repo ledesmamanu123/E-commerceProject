@@ -7,5 +7,6 @@ export default {
     mongoUrl:process.env.MONGO_URL,
     adminName:process.env.ADMIN_NAME,
     adminPassword:process.env.ADMIN_PASS,
-    jwtPrivateKey:process.env.JWT_PRIVATE_KEY
+    jwtPrivateKey:process.env.JWT_PRIVATE_KEY,
+    persistance: process.env.PERSISTANCE
 }

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authToken } from "../utils.js";
 import ProductsManager from "../../dao/mongo/Managers/productsManager.js";
+import SessionUserDTO from "../../dao/DTO's/users/SessionUserDTO.js";
 
 
 const router = Router();
@@ -38,7 +39,8 @@ router.get('/login',(req,res)=>{
 })
 
 router.get('/current',authToken,(req,res)=>{
-    res.send({status:'Success', payload:req.user})
+    let user = new SessionUserDTO(req.user)
+    res.send({status:'Success', payload:user})
 })
 
 export default router;
