@@ -12,13 +12,13 @@ import config from './config/config.js';
 export const createHash = (password)=> bcrypt.hashSync(password,bcrypt.genSaltSync(10));
 
 //isValidPassword valida si el password del user es el mismo que el hash del servidor
-export const isValidPassword = (user,password) => bcrypt.compareSync(password, user.password)
+export const isValidPassword = (password, hashPassword) => bcrypt.compareSync(password, hashPassword)
 
 
 
 //CREACIÓN Y COMPARACIÓN DEL TOKEN
 export const generateToken = (user) =>{
-    const token = jwt.sign({user},config.jwtPrivateKey,{expiresIn:'7d'})
+    const token = jwt.sign({user},config.jwtPrivateKey,{expiresIn:'24h'})
     return token;
 }
 export const authToken = (req,res,next) =>{

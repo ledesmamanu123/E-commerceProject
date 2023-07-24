@@ -1,5 +1,5 @@
 import UsersManager from "../../dao/mongo/Managers/usersManager.js";
-import { createHash, isValidPassword } from "../utils.js";
+import {generateToken} from "../utils.js";
 
 const usersService = new UsersManager();
 
@@ -16,8 +16,16 @@ const getUsersBy = async(req,res)=>{
 }
 
 const createUser = async(req,res)=>{
-    
-    res.send({status:"Success", message:"User registered",payload:req.user})
+    //Nos llega el user de passport en req.user
+    console.log(req.user)
+    //Creamos su token de autorización
+    const access_token = generateToken(req.user)
+
+    //Enviamos la cookie
+    res.cookie('authToken', access_token,{
+        maxAge:1000*60*60*24,
+        httpOnly:true //Solo podremos acceder a la cookie mediante el protocolo http
+    }).send({"status":"Success"})
 }
 
 const updateUser =  async (req,res)=>{

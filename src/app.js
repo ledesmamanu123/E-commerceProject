@@ -3,13 +3,14 @@ import handlebars from 'express-handlebars';
 import mongoose from 'mongoose';
 import config from './config/config.js';
 import __dirname from './utils.js';
-import passport from 'passport';
+import cookieParser from 'cookie-parser';
 import initializePassport from './config/passport.config.js';
 
 import ProductsRouter from './routes/products.router.js';
 import CartsRouter from './routes/carts.router.js';
 import viewsRouter from './routes/views.router.js';
 import UsersRouter from './routes/users.router.js';
+
 
 const app = express();
 const PORT = config.port||8080;
@@ -18,11 +19,10 @@ const connection = mongoose.connect(config.mongoUrl)
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 app.use(express.static(`${__dirname}/public`))
+app.use(cookieParser());
 
 //Inicializamos las estrategias de passport
 initializePassport();
-app.use(passport.initialize());
-app.use(passport.session());
 
 //Seteo Handlebars
 app.engine('handlebars', handlebars.engine())

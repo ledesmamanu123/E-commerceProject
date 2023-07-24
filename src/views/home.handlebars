@@ -1,1 +1,17 @@
-<h1>Binevenidos</h1>
+<h1>Binevenido/a {{user.name}} a GameNation</h1>
+<div>
+    {{#each products}}
+    <h2>{{title}}</h2>
+    <p>Precio: $<b>{{price}}</b></p>
+    <p>Categoria: {{category}}</p>
+    <p>Stock: {{stock}}</p>
+    <hr>
+    {{/each}}
+    {{#if hasPrevPage}}
+    <a href="/?page={{prevPage}}"><button>Anterior</button></a>
+    <p>{{page}}</p>
+    {{/if}}
+        {{#if hasNextPage}}
+    <a href="/?page={{nextPage}}"><button>Siguiente</button></a>
+    {{/if}}
+</div>

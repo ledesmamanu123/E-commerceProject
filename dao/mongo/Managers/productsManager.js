@@ -20,4 +20,8 @@ export default class ProductsManager {
     deleteProduct = (id) =>{
         return productsModel.findByIdAndDelete(id);
     }
+
+    paginateProducts = (page, limit) =>{
+        return productsModel.paginate({},{page, limit, lean:true})
+    }
 }
