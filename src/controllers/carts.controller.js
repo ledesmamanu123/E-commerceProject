@@ -1,12 +1,12 @@
+import CreateCartDTO from "../../dao/DTO's/carts/CreateCartDTO.js";
 import CartManager from "../../dao/mongo/Managers/cartsManager.js";
 import { REQUEST_STATUS } from "../consts.js";
 
 const cartService = new CartManager();
 
 const createCart = async (req,res)=>{
-    const cart = {
-        products:[]
-    }
+    const cart = new CreateCartDTO()
+    console.log(cart)
     const result = await cartService.createCart(cart)
     res.send({status:"Success", message:"Cart was created successfuly"})
 }

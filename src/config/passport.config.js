@@ -3,6 +3,8 @@ import local from "passport-local";
 import UsersManager from "../../dao/mongo/Managers/usersManager.js";
 import config from "./config.js";
 import { isValidPassword, createHash, generateToken } from "../utils.js";
+import CreateUserDTO from "../../dao/DTO's/users/CreateUserDTO.js";
+import SessionUserDTO from "../../dao/DTO's/users/SessionUserDTO.js";
 
 const usersService = new UsersManager();
 //Declaramos nuestra estatregia local
@@ -16,6 +18,7 @@ const initializePassport = ()=>{
             passReqToCallback:true, //permite que podamos acceder al objeto req
             usernameField:'email' //vamos a usar nuestro email como si fuera el campo de username
         }, async(req,email,password,done)=>{
+            console.log('Registrando')
             try {
                 const users = await usersService.getUsers();
                 const {first_name, last_name, age, cart} = req.body;
@@ -26,20 +29,12 @@ const initializePassport = ()=>{
                 //Verificamos que esten todos los campos completos
                 if(!email||!first_name||!last_name||!age||!password||!cart) return done(null,false,{message:"Incompleted Values"});
 
-                //Cuando paso todos los controles, ACÁ CREAMOS AL USER, Y DESPUES LE CREAMOS LA SESSION
-
                 //Hasheamos la pass
                 const hashPassword = createHash(password);
 
-                //Creamos al user a registrar
-                const user = {
-                    first_name,
-                    last_name,
-                    email,
-                    password: hashPassword,
-                    age,
-                    cart
-                }
+                //Creamos al user llamando al UserDTO
+                const user = new CreateUserDTO({first_name, last_name, age, cart, email},hashPassword)
+
                 const result = await usersService.createUser(user);
                 done(null, result)
             } catch (error) {
@@ -53,8 +48,6 @@ const initializePassport = ()=>{
         {
             usernameField:'email'
         }, async(email,password,done)=>{
-            console.log(email, password)
-            console.log('Iniciando passport')
             try {
                 //Admin
                 if (email === config.adminName && password === config.adminPassword) {
@@ -67,25 +60,17 @@ const initializePassport = ()=>{
                     }
                     return done(null, user);
                 }
-                console.log(email)
-                console.log('Validamos user')
+
                 //Usuarios
                 let user = await usersService.getUsersBy({email}); //Verificamos el mail exista
                 if(!user) return done(null, false, { message: 'Invalid credentials' });
-                console.log('Validamos contraseña')
+
                 //Validamos la contraseña
-                console.log(user)
-                console.log(user.password)
                 const validatePassword = await isValidPassword(password, user.password);
-                console.log('validatePassword')
                 if (!validatePassword) return done(null, false, { message: 'Invalid Password' });
-                console.log('contraseña validad')
-                const newUser = {
-                    id: user._id,
-                    name: `${user.first_name} ${user.last_name}`,
-                    email: user.email,
-                    role: user.rol,
-                    };
+
+                //Creamos el usuario para la session
+                const newUser = new SessionUserDTO(user)
                     console.log(newUser)
                 done(null, newUser);
             } catch (error) {

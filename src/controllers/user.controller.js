@@ -17,7 +17,9 @@ const getUsersBy = async(req,res)=>{
 
 const createUser = async(req,res)=>{
     //Nos llega el user de passport en req.user
+    console.log("Controllers")
     console.log(req.user)
+
     //Creamos su token de autorización
     const access_token = generateToken(req.user)
 

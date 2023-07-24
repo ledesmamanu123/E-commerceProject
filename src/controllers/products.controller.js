@@ -1,3 +1,4 @@
+import CreateProductDTO from "../../dao/DTO's/products/CreateProductDTO.js";
 import ProductsManager from "../../dao/mongo/Managers/productsManager.js";
 
 const productService = new ProductsManager();
@@ -27,16 +28,8 @@ const createProduct = async (req, res)=>{
     const {title, description, price, thumbnail, code, stock, status, category} = req.body;
     if(products.find(product => product.code === code)) return res.status(400).send({status:"error", error:"Product already existed"})
     if(!title||!description||!price||!code||!stock||!category) return res.status(400).send({status:"error", error:"Incompleted values"})
-    const product = {
-        title, 
-        description, 
-        price, 
-        thumbnail:thumbnail || [], 
-        code, 
-        stock,
-        status,
-        category
-    }
+    //Creamos el producto
+    const product = new CreateProductDTO({title, description, price, thumbnail, code, stock, status, category})
     //Mandamos nuestro nuevo producto
     const result = await productService.createProduct(product)
     res.status(201).send({status:"Success", message:"Product was created successfuly"})
