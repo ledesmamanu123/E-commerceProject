@@ -1,27 +1,24 @@
 import { Router } from "express";
-import userController from "../controllers/user.controller.js";
 import passport from "passport";
+
+import userController from "../controllers/user.controller.js";
+import { handlePolities } from "../utils.js";
 
 
 const router = Router();
 
 //METODO GET
-router.get('/',userController.getUsers)
-router.get('/:uid',userController.getUsersBy)
-
-router.get('/failRegister',(req,res)=>{
-    console.log("FailedStrategy")
-    res.send({status:"Error", error:"Estraategia fallida"})
-})
+router.get('/',handlePolities(["ADMIN"]),userController.getUsers)
+router.get('/:uid',handlePolities(["ADMIN"]),userController.getUsersBy)
 
 //METODO POST
-router.post('/register',passport.authenticate('register',{failureRedirect:'/api/users/failRegister', session:false}),userController.createUser)
-router.post('/login',passport.authenticate('login',{failureRedirect:'/api/users/failLogin', session:false}),userController.createUser)
+router.post('/register',handlePolities(["ADMIN"]),passport.authenticate('register',{session:false}),userController.createUser)
+router.post('/login',handlePolities(["ADMIN"]),passport.authenticate('login',{session:false}),userController.createUser)
 
 //METODO PUT
-router.put('/:uid',userController.updateUser)
+router.put('/:uid',handlePolities(["ADMIN"]),userController.updateUser)
 
 //METODO DELETE
-router.delete('/:uid', userController.deleteUser)
+router.delete('/:uid',handlePolities(["ADMIN"]), userController.deleteUser)
 
 export default router

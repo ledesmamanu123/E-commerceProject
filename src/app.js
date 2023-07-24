@@ -2,7 +2,7 @@ import express from 'express';
 import handlebars from 'express-handlebars';
 import mongoose from 'mongoose';
 import config from './config/config.js';
-import __dirname from './utils.js';
+import __dirname, { handlePolities } from './utils.js';
 import cookieParser from 'cookie-parser';
 import initializePassport from './config/passport.config.js';
 
@@ -30,8 +30,8 @@ app.set('views', `${__dirname}/views`)
 app.set('view engine', 'handlebars')
 
 //Routes
-app.use('/', viewsRouter);
+app.use('/',viewsRouter);
 app.use('/api/users',UsersRouter);
-app.use('/api/products', ProductsRouter);
-app.use('/api/carts', CartsRouter);
+app.use('/api/products',ProductsRouter);
+app.use('/api/carts',CartsRouter);
 

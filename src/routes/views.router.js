@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { authToken } from "../utils.js";
+import { authToken, handlePolities } from "../utils.js";
 import ProductsManager from "../../dao/mongo/Managers/productsManager.js";
 import SessionUserDTO from "../../dao/DTO's/users/SessionUserDTO.js";
+import passport from "passport";
 
 
 const router = Router();
@@ -26,21 +27,22 @@ router.get('/',async(req,res)=>{
     }) 
 })
 
-router.get('/form',(req,res)=>{
+router.get('/form',handlePolities(["PUBLIC"]),(req,res)=>{
     res.render('form')
 })
 
-router.get('/register',(req,res)=>{
+router.get('/register',handlePolities(["PUBLIC"]),(req,res)=>{
     res.render('register')
 })
 
-router.get('/login',(req,res)=>{
+router.get('/login',handlePolities(["PUBLIC"]),(req,res)=>{
     res.render('login')
 })
 
-router.get('/current',authToken,(req,res)=>{
-    let user = new SessionUserDTO(req.user)
-    res.send({status:'Success', payload:user})
+router.get('/current',handlePolities(["USER"]),(req,res)=>{
+    console.log("User de views")
+    console.log(req.user)
+    res.send({status:'Success', payload:req.user.user})
 })
 
 export default router;

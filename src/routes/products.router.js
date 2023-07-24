@@ -1,5 +1,7 @@
 import { Router } from "express";
+
 import productsController from "../controllers/products.controller.js";
+import { handlePolities } from "../utils.js";
 
 const router = Router();
 
@@ -8,12 +10,12 @@ router.get('/',productsController.getProducts)
 router.get('/:pid',productsController.getProductBy)
 
 //METODOS POST
-router.post('/', productsController.createProduct)
+router.post('/',handlePolities(["ADMIN"]),productsController.createProduct)
 
 //METODOS PUT
-router.put('/:pid', productsController.updateProduct)
+router.put('/:pid',handlePolities(["ADMIN"]),productsController.updateProduct)
 
 //METODO DELETE
-router.delete('/:pid', productsController.deleteProduct)
+router.delete('/:pid',handlePolities(["ADMIN"]),productsController.deleteProduct)
 
 export default router

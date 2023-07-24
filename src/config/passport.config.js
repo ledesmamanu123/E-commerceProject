@@ -1,17 +1,40 @@
 import passport from "passport";
+import jwt from 'passport-jwt';
 import local from "passport-local";
-import UsersManager from "../../dao/mongo/Managers/usersManager.js";
+
 import config from "./config.js";
-import { isValidPassword, createHash, generateToken } from "../utils.js";
+
+import UsersManager from "../../dao/mongo/Managers/usersManager.js";
 import CreateUserDTO from "../../dao/DTO's/users/CreateUserDTO.js";
 import SessionUserDTO from "../../dao/DTO's/users/SessionUserDTO.js";
+import { isValidPassword, createHash, cookieExtractor } from "../utils.js";
 
 const usersService = new UsersManager();
-//Declaramos nuestra estatregia local
-const LocalStrategy = local.Strategy;
+
+const LocalStrategy = local.Strategy; //core de nuestras estrategias locales
+const JWTStrategy = jwt.Strategy; //core de la estrategia de jwt
+const ExtractorJWT = jwt.ExtractJwt;
 
 //Passport usará sus propios "middlewares" (por asi decirlo), de acuerdo a cada estrategia
 const initializePassport = ()=>{
+    //Estrategia de JWT
+    passport.use('jwt', new JWTStrategy(
+        //Configuracion de jwt
+        {
+            jwtFromRequest:ExtractorJWT.fromExtractors([cookieExtractor]),
+            secretOrKey:config.jwtPrivateKey//Misma key que cuando creamos el token
+        },async(jwt_payload,done)=>{
+            try {
+                console.log("User de JWT")
+                console.log(jwt_payload)
+                return done(null,jwt_payload) //jwt_payload es el user
+            } catch (error) {
+                return done(error)
+            }
+        }
+        ))
+
+    //Estrategias LOCALES
     passport.use('register', new LocalStrategy(
         //Primero configuramos las opciones de nuestra estrategia local
         {
@@ -35,8 +58,7 @@ const initializePassport = ()=>{
                 //Creamos al user llamando al UserDTO
                 const user = new CreateUserDTO({first_name, last_name, age, cart, email},hashPassword)
 
-                const result = await usersService.createUser(user);
-                done(null, result)
+                done(null, user)
             } catch (error) {
                 done(error);
             }
@@ -52,12 +74,7 @@ const initializePassport = ()=>{
                 //Admin
                 if (email === config.adminName && password === config.adminPassword) {
                     //Desde aquí ya puedo inicializar al admin.
-                    let user = {
-                      id: 0,
-                      name: `Admin`,
-                      role: 'admin',
-                      email: '...',
-                    }
+                    const user = new SessionUserDTO({id:0, first_name:"Admin",last_name:"",rol:'admin',email:'...'})
                     return done(null, user);
                 }
 
@@ -71,7 +88,8 @@ const initializePassport = ()=>{
 
                 //Creamos el usuario para la session
                 const newUser = new SessionUserDTO(user)
-                    console.log(newUser)
+                console.log("User de login: ")
+                console.log(newUser)
                 done(null, newUser);
             } catch (error) {
                 return(error)
