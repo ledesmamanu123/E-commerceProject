@@ -12,8 +12,8 @@ router.get('/',handlePolities(["ADMIN"]),userController.getUsers)
 router.get('/:uid',handlePolities(["ADMIN"]),userController.getUsersBy)
 
 //METODO POST
-router.post('/register',handlePolities(["ADMIN"]),passport.authenticate('register',{session:false}),userController.createUser)
-router.post('/login',handlePolities(["ADMIN"]),passport.authenticate('login',{session:false}),userController.createUser)
+router.post('/register',passport.authenticate('register',{session:false}),userController.createUser)
+router.post('/login',passport.authenticate('login',{session:false}),userController.createUser)
 
 //METODO PUT
 router.put('/:uid',handlePolities(["ADMIN"]),userController.updateUser)

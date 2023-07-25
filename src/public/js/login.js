@@ -17,7 +17,8 @@ form.addEventListener('submit', async (event)=>{
     console.log("Hola, termine ")
     console.log(responseData.status)
     if(responseData.status === 'Success'){
-        window.location.href="/";
+        //window.location.href="/";
+        console.log(responseData)
     }else{
         const errBox = document.getElementById('login_error')
         errBox.innerHTML = 'Credenciales Incorrectas'

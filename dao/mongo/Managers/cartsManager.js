@@ -11,14 +11,15 @@ export default class CartManager {
     }
 
     getCartBy = (params) =>{
-        return cartsModel.findOne(params).lean();
+        return cartsModel.findOne(params).exec();
     }
 
     setProductToCart = (cid, product) =>{
-    //     return cartsModel.updateOne(
-    //         {_id: cid}, //Buscamos el carrito por id
-    //         {$push:{products:{product: new mongoose.Types.ObjectId(pid)}}}) //Pusheamos en nuestra key 'products', un objeto con la key 'product' y el value pid.
     return cartsModel.findByIdAndUpdate(cid, {$set:product})
+    }
+
+    deleteCart = (cid) =>{
+        return cartsModel.findOneAndDelete(cid)
     }
 
 }

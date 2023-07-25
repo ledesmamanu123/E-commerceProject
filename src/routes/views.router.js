@@ -1,8 +1,6 @@
 import { Router } from "express";
-import { authToken, handlePolities } from "../utils.js";
+import { handlePolities } from "../utils.js";
 import ProductsManager from "../../dao/mongo/Managers/productsManager.js";
-import SessionUserDTO from "../../dao/DTO's/users/SessionUserDTO.js";
-import passport from "passport";
 
 
 const router = Router();
@@ -14,6 +12,7 @@ router.get('/',async(req,res)=>{
     const paginates = await productServices.paginateProducts(page,limit)
     const {docs, hasPrevPage, hasNextPage, prevPage, nextPage, ...rest} = paginates;
     const products = docs;
+    console.log(req.user)
 
     res.render('home', { //render va a buscar el archivo a views
         products,

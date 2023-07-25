@@ -62,6 +62,13 @@ export const handlePolities = policies =>{ //policies va a ser un array que mand
     }
 }
 
+
+//Funcion para genera un codigo unico
+export const generateUniqueCode = () =>{
+    const datePart = Date.now().toString(36); // Obtener parte de la fecha actual
+    const randomPart = Math.random().toString(36); // Obtener parte aleatoria
+    return `${datePart}${randomPart}`;
+}
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
