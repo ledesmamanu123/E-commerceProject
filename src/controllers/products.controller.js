@@ -1,5 +1,8 @@
 import CreateProductDTO from "../../dao/DTO's/products/CreateProductDTO.js";
 import ProductsManager from "../../dao/mongo/Managers/productsManager.js";
+import CustomError from "../service/errors/CustomError.js";
+import EErrors from "../service/errors/enums.js";
+import { generateProductErrorInfo } from "../service/errors/info.js";
 
 const productService = new ProductsManager();
 
@@ -27,7 +30,16 @@ const createProduct = async (req, res)=>{
     const products = await productService.getProducts();
     const {title, description, price, thumbnail, code, stock, status, category} = req.body;
     if(products.find(product => product.code === code)) return res.status(400).send({status:"error", error:"Product already existed"})
-    if(!title||!description||!price||!code||!stock||!category) return res.status(400).send({status:"error", error:"Incompleted values"})
+    if(!title||!description||!price||!code||!stock||!category){
+        //Armamos el error
+        CustomError.createError({
+            name:"Product creation error",
+            cause:generateProductErrorInfo({title, description, price, code, stock, category}),
+            message:'Error trying to create Product, incomplete values',
+            code:EErrors.INVALID_TYPES_ERROR
+        })
+        // return res.status(400).send({status:"error", error:"Incompleted values"})
+    }
     //Creamos el producto
     const product = new CreateProductDTO({title, description, price, thumbnail, code, stock, status, category})
     //Mandamos nuestro nuevo producto

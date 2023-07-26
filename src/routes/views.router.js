@@ -13,7 +13,7 @@ router.get('/',async(req,res)=>{
     const {docs, hasPrevPage, hasNextPage, prevPage, nextPage, ...rest} = paginates;
     const products = docs;
     console.log(req.user)
-
+    req.logger.info('Esto es un log de informacion')
     res.render('home', { //render va a buscar el archivo a views
         products,
         hasPrevPage,
@@ -39,8 +39,6 @@ router.get('/login',handlePolities(["PUBLIC"]),(req,res)=>{
 })
 
 router.get('/current',handlePolities(["USER"]),(req,res)=>{
-    console.log("User de views")
-    console.log(req.user)
     res.send({status:'Success', payload:req.user.user})
 })
 

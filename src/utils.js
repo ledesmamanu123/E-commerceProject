@@ -2,6 +2,10 @@ import {fileURLToPath} from 'url';
 import { dirname } from 'path';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import winston from 'winston';
+import {faker} from '@faker-js/faker';
+
+import LoggerService from "./service/LoggerService.js";
 import config from './config/config.js';
 
 
@@ -69,6 +73,72 @@ export const generateUniqueCode = () =>{
     const randomPart = Math.random().toString(36); // Obtener parte aleatoria
     return `${datePart}${randomPart}`;
 }
+
+
+//Libreria para controlar los logs
+// const logger = winston.createLogger({
+//     //Aca declaramos nuestros levels
+//     levels:customOptions.levels,
+//     transports:[
+//         new winston.transports.Console({level:"silly", //Este logger apunta a la consola
+//             format:winston.format.simple()}), //Cambiamos el formato
+//         new winston.transports.File({level:"error", filename:'./errors.log'}) //Logger para files
+//     ]
+// })
+
+//Se pueden crear las opciones que querramos
+// const customOptions = {
+//     levels:{
+//         fatal: 0,
+//         error: 1,
+//         warning: 2,
+//         http: 3,
+//         info: 4,
+//         debug: 5
+//     },
+//     colors:{
+//         fatal: 'red',
+//         error: 'orange',
+//         warning: 'yellow',
+//         http: 'green',
+//         info: 'white',
+//         debug: 'blue'
+//     }
+// }
+
+// const logger = winston.createLogger({
+//     //Aca declaramos nuestros levels
+//     levels:customOptions.levels,
+//     transports:[
+//         new winston.transports.Console({level:"silly", //Este logger apunta a la consola
+//             format:winston.format.combine(
+//                 winston.format.colorize({colors:customOptions.colors}),
+//                 winston.format.simple()
+//             )}), //Cambiamos el formato
+//         new winston.transports.File({level:"error", filename:'./errors.log'}) //Logger para files
+//     ]
+// })
+
+//Declaramos una variable logger, que nos instancie nuestro LoggerService con una variable de Entorno
+const logger = new LoggerService("dev")
+export const attachLogger = (req,res,next) =>{
+    req.logger = logger.logger;
+    req.logger.http(`${req.method} en ${req.url} - ${new Date().toLocaleTimeString()}`);
+    next();
+}
+
+export const generateProducts = ()=>{
+    return {
+        title: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        price: faker.commerce.price(),
+        code: faker.number.int(),
+        stock: faker.string.numeric(),
+        category: faker.commerce.department()
+    }
+}
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 

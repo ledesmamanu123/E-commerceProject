@@ -1,9 +1,10 @@
 import express from 'express';
 import handlebars from 'express-handlebars';
 import mongoose from 'mongoose';
-import config from './config/config.js';
-import __dirname, { handlePolities } from './utils.js';
 import cookieParser from 'cookie-parser';
+
+import config from './config/config.js';
+import __dirname, { attachLogger, generateProducts } from './utils.js';
 import initializePassport from './config/passport.config.js';
 
 import ProductsRouter from './routes/products.router.js';
@@ -16,10 +17,12 @@ const app = express();
 const PORT = config.port||8080;
 const server = app.listen(PORT,()=>{console.log(`ExpServer is listening in port ${PORT}`)})
 const connection = mongoose.connect(config.mongoUrl)
+
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 app.use(express.static(`${__dirname}/public`))
 app.use(cookieParser());
+app.use(attachLogger)
 
 //Inicializamos las estrategias de passport
 initializePassport();
@@ -34,4 +37,13 @@ app.use('/',viewsRouter);
 app.use('/api/users',UsersRouter);
 app.use('/api/products',ProductsRouter);
 app.use('/api/carts',CartsRouter);
+
+//Route de mocking de producto
+app.get('/mockingproducts',(req,res)=>{
+    let productsInMemory = [];
+    for (let i = 0; i < 50; i++) {
+        productsInMemory.push(generateProducts())      
+    }
+    res.send({status:"Success",payload:productsInMemory})
+})
 
