@@ -6,18 +6,10 @@ export default class LoggerService {
             fatal: 0,
             error: 1,
             warning: 2,
-            http: 3,
-            info: 4,
+            info: 3,
+            http: 4,
             debug: 5
             },
-            // colors:{
-            //     fatal: 'red',
-            //     error: 'orange',
-            //     warning: 'yellow',
-            //     http: 'green',
-            //     info: 'white',
-            //     debug: 'blue'
-            // }
         }
         this.logger = this.createLogger(env);
     }
@@ -28,7 +20,7 @@ export default class LoggerService {
             return winston.createLogger({
                 levels: this.options.levels,
                 transports:[
-                    new winston.transports.Console({level:'info',
+                    new winston.transports.Console({level:'debug',
                 format:winston.format.simple()})
                 ]
             })
@@ -36,7 +28,7 @@ export default class LoggerService {
                 return winston.createLogger({
                     levels: this.options.levels,
                     transports:[
-                        new winston.transports.Console({level:'http'}),
+                        new winston.transports.Console({level:'info'}),
                         new winston.transports.File({level:'warning',filename:'./errors.log'})
                     ]
                 })

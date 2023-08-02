@@ -120,7 +120,7 @@ export const generateUniqueCode = () =>{
 // })
 
 //Declaramos una variable logger, que nos instancie nuestro LoggerService con una variable de Entorno
-const logger = new LoggerService("dev")
+const logger = new LoggerService(config.typeLog)
 export const attachLogger = (req,res,next) =>{
     req.logger = logger.logger;
     req.logger.http(`${req.method} en ${req.url} - ${new Date().toLocaleTimeString()}`);

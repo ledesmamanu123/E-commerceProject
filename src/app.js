@@ -47,3 +47,13 @@ app.get('/mockingproducts',(req,res)=>{
     res.send({status:"Success",payload:productsInMemory})
 })
 
+app.get('/testLogs', (req,res)=>{
+    req.logger.debug('Esto es debug')
+    req.logger.http('Esto es http')
+    req.logger.info('Esto es info')
+    req.logger.warning('Esto es warning')
+    req.logger.error('Esto es error')
+    req.logger.fatal('Esto es fatal')
+    res.send('Cheto mal')
+})
+
